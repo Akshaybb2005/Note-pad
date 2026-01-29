@@ -1,21 +1,47 @@
-import { register, login } from "../authcontroller.js";
+import { describe, test, expect, vi, beforeEach } from "vitest";
+
+/**
+ * 1️⃣ Mock prisma BEFORE importing controller
+ */
+vi.mock("../prismaclient.js", () => ({
+  default: {
+    user: {
+      findUnique: vi.fn(),
+      create: vi.fn()
+    }
+  }
+}));
+
+/**
+ * 2️⃣ Mock jsonwebtoken (default import)
+ * matches: import jwt from "jsonwebtoken"
+ */
+vi.mock("jsonwebtoken", () => ({
+  default: {
+    sign: vi.fn(() => "fake.jwt.token")
+  }
+}));
+
+/**
+ * 3️⃣ Import after mocks
+ */
 import prisma from "../prismaclient.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { register, login } from "../authcontroller.js";
 
-jest.mock("../prismaclient.js");
-
+/**
+ * 4️⃣ Mock Express response
+ */
 const mockRes = () => {
   const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
-  res.cookie = jest.fn();
+  res.status = vi.fn().mockReturnValue(res);
+  res.json = vi.fn().mockReturnValue(res);
+  res.cookie = vi.fn().mockReturnValue(res);
   return res;
 };
 
 describe("Auth Controller", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("registers a new user", async () => {
@@ -24,15 +50,15 @@ describe("Auth Controller", () => {
       id: 1,
       name: "Akshay",
       email: "test@test.com",
-      password: "hashed",
+      password: "hashed"
     });
 
     const req = {
       body: {
         name: "Akshay",
         email: "test@test.com",
-        password: "123456",
-      },
+        password: "123456"
+      }
     };
 
     const res = mockRes();
@@ -51,8 +77,8 @@ describe("Auth Controller", () => {
     const req = {
       body: {
         email: "wrong@test.com",
-        password: "123",
-      },
+        password: "123"
+      }
     };
 
     const res = mockRes();

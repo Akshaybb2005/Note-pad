@@ -1,4 +1,4 @@
-import { register, login } from "../controllers/authController.js";
+import { register, login } from "../authcontroller.js";
 import prisma from "../prismaclient.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
